@@ -8,23 +8,15 @@ def hexdump(file_content):
     hex_bytes = binascii.hexlify(file_content)
     return hex_bytes
 
-# def padding(input_bytes):
-#     # each frame has 1920*1080 bytes, 2073600 bytes. Bytes should be padded so that it matches the size or a multiple of it.
-#     output_bytes =
 
 def null_byte_padding(input_bytes, frame_size=2073600):
-    # Determine the length of the input data
+    # each frame has 1920*1080 bytes, 2073600 bytes. Bytes should be padded
+    # so that it matches the size or a multiple of it.
     input_length = len(input_bytes)
-
-    # Calculate the number of bytes to add to make the input length a multiple of the frame size
-    # If the input length is already a multiple of the frame size, no padding is needed.
     padding_needed = (frame_size - (input_length % frame_size)) % frame_size
 
-    # Create a bytes object containing the padding
-    # This uses the null byte ('\x00') for padding
-    padding = b'00' * padding_needed
+    padding = b'0' * padding_needed
 
-    # Append the padding to the input bytes and return
     output_bytes = input_bytes + padding
     return output_bytes
 
@@ -37,4 +29,26 @@ if __name__ == '__main__':
     print(hex_input)
 
     padded = null_byte_padding(hex_input)
-    print(padded)
+    print(len(padded))
+
+# 000 - black
+# 111 - gray
+# 222 - white
+#
+# 100 - burgundy red
+# 010 - grass green
+# 001 - deep blue
+#
+# 200 - red
+# 020 - green
+# 002 - blue
+#
+# 220 - yellow
+# 202 - fuchsia purple
+# 022 - cyan
+#
+# 210 - orange
+# 021 - mint green
+# 102 - purple
+#
+# 211 - coral
