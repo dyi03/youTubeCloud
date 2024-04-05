@@ -31,6 +31,7 @@ if __name__ == '__main__':
     padded = null_byte_padding(hex_input)
     print(len(padded))
 
+
 # 000 - black
 # 111 - gray
 # 222 - white
