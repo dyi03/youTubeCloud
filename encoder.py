@@ -1,4 +1,5 @@
 import binascii
+from PIL import Image
 
 
 def hexdump(file_content):
@@ -20,6 +21,25 @@ def null_byte_padding(input_bytes, frame_size=2073600):
     output_bytes = input_bytes + padding
     return output_bytes
 
+def text_to_binary(text):
+    return ''.join(format(ord(c), '08b') for c in text)
+
+def generate_image(binary_data, width=320, pixels_per_bit=10):
+    height = ((len(binary_data) * pixels_per_bit) // width + 1) * pixels_per_bit
+    img = Image.new('1', (width, height), "white")
+    pixels = img.load()
+
+    x, y = 0, 0
+    for bit in binary_data:
+        for px in range(pixels_per_bit):
+            for py in range(pixels_per_bit):
+                pixels[x * pixels_per_bit + px, y * pixels_per_bit + py] = int(bit)
+        x += 1
+        if x * pixels_per_bit >= width:
+            x = 0
+            y += 1
+
+    return img
 
 if __name__ == '__main__':
     f = open("test", "rb")
