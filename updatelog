@@ -1,15 +1,31 @@
-### WEEK 11 ###
-   encoder.py
-   * hexdump
-   * padding
-   * color template initial proposal
-   * printing images
 
-   next week:
-   * general feedback
-   * update on
-   * crop images to 1920x1080 resolution
-   * images to video
-   * decoder.py
+
+### WEEK 11 ###
+    encoder.py
+    * hexdump
+    * padding
+    * color template initial proposal
+    * printing images
+
+    to do:
+    * general feedback
+    * update on
+    * crop images to 1920x1080 resolution
+    * images to video
+    * decoder.py
 
 ### WEEK 12 ###
+    encoder.py
+    * prototype working (bible.txt from https://github.com/mxw/grmr/blob/master/src/finaltests/bible.txt)
+    * hexdump to color
+    * color template prototype
+    * printing images at 1920x1080
+
+    to do:
+    * encoder.py
+        * make images to video
+        * evaluate padding
+    * evaluate compression (locally and on YouTube)
+    * decoder.py
+
+### WEEK 13 ###
