@@ -1,5 +1,6 @@
 import binascii
 from PIL import Image
+import av
 
 hex_to_color = {
     '0': (255, 255, 255),   # white
@@ -42,55 +43,6 @@ def null_byte_padding(input_bytes, frame_size=2073600):
 def text_to_binary(text):
     return ''.join(format(ord(c), '08b') for c in text)
 
-
-# def generate_image(binary_data, width=320, pixels_per_bit=10):
-#     height = ((len(binary_data) * pixels_per_bit) // width + 1) * pixels_per_bit
-#     img = Image.new('1', (width, height), "white")
-#     pixels = img.load()
-#
-#     x, y = 0, 0
-#     for bit in binary_data:
-#         for px in range(pixels_per_bit):
-#             for py in range(pixels_per_bit):
-#                 pixels[x * pixels_per_bit + px, y * pixels_per_bit + py] = int(bit)
-#         x += 1
-#         if x * pixels_per_bit >= width:
-#             x = 0
-#             y += 1
-#
-#     return img
-
-# def generate_hex_images(hex_data, width=1920, height=1080):
-#     # Calculate the number of hex characters per image
-#     chars_per_image = width * height
-#
-#     # Split the hex data into chunks that fit into individual images
-#     chunks = [hex_data[i:i + chars_per_image] for i in range(0, len(hex_data), chars_per_image)]
-#
-#     images = []  # This will store all the image objects
-#
-#     for chunk in chunks:
-#
-#         img = Image.new('RGB', (width, height), "white")  # 'RGB' mode for color
-#         pixels = img.load()
-#
-#         hex_string = chunk.decode('ascii')
-#         x, y = 0, 0
-#         for hex_char in hex_string:
-#             # Map the hex character to its color and set the pixel
-#             pixels[x, y] = hex_to_color.get(hex_char.upper(), (0, 0, 0))  # Default to black if not found
-#             x += 1
-#             if x >= width:
-#                 x = 0
-#                 y += 1
-#
-#             # Save the image locally
-#             filename = f'hex_image_{index}.png'
-#             img.save(filename)
-#             images.append(img)
-#
-#     return images
-
 def generate_hex_images(hex_data, width=1920, height=1080):
     # Calculate the number of hex characters per image
     chars_per_image = width * height
@@ -125,6 +77,8 @@ def generate_hex_images(hex_data, width=1920, height=1080):
 
 
 
+
+
 if __name__ == '__main__':
     f = open("books/bible.txt", "rb")
     input_text = f.read()
@@ -135,7 +89,7 @@ if __name__ == '__main__':
     # padded = null_byte_padding(hex_input)
     # print(len(padded))
 
-    x = generate_hex_images(hex_input)
+    generate_hex_images(hex_input)
 
 # 000 - black
 # 111 - gray
