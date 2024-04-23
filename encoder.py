@@ -2,6 +2,8 @@ import binascii
 from PIL import Image
 import av
 import glob
+import os
+import shutil
 
 hex_to_color = {
     '0': (255, 255, 255),  # white
@@ -48,6 +50,10 @@ def text_to_binary(text):
 
 
 def generate_hex_images(hex_data, width=1920, height=1080):
+    if os.path.exists('temp'):
+        shutil.rmtree('temp')  # Remove the folder and all its contents
+    os.makedirs('temp')
+
     # Calculate the number of hex characters per image
     chars_per_image = width * height
 
@@ -73,11 +79,12 @@ def generate_hex_images(hex_data, width=1920, height=1080):
                 y += 1
 
         # Save the image locally
-        filename = f'output/hex_image_{index}.png'
+        filename = f'temp/hex_image_{index}.png'
         img.save(filename)
         images.append(img)
 
     return images
+
 
 def images_to_video(image_folder, output_file, frame_rate=60):
     """
@@ -132,7 +139,7 @@ def images_to_video(image_folder, output_file, frame_rate=60):
 
 
 if __name__ == '__main__':
-    f = open("books/bible.txt", "rb")
+    f = open("books/test", "rb")
     input_text = f.read()
 
     hex_input = hexdump(input_text)
@@ -141,6 +148,8 @@ if __name__ == '__main__':
     # padded = null_byte_padding(hex_input)
     # print(len(padded))
 
-    # generate_hex_images(hex_input)
+    generate_hex_images(hex_input)
 
-    images_to_video("output", "output.AVI")
+    images_to_video("temp", "output.AVI")
+
+    shutil.rmtree('temp')
