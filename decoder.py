@@ -36,7 +36,7 @@ def hexdump(file_content):
     return hex_bytes
 
 
-def extract_frames(video_path, output_folder="temp"):
+def extract_frames(video_path, output_folder):
     # Create the output folder if it doesn't exist
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)  # Remove the folder and all its contents
@@ -50,7 +50,7 @@ def extract_frames(video_path, output_folder="temp"):
         # Convert the frame to PIL image
         img = frame.to_image()
         # Save the image file
-        img.save(os.path.join(output_folder, f'frame-{i}.png'))
+        img.save(os.path.join(output_folder, f'{i}.png'))
         print(f"Extracted frame {i}")
 
     print("All frames extracted.")
@@ -81,8 +81,8 @@ def decode_hex_images(image_folder):
             width, height = img.size
 
             # Read each pixel and convert it back to hex character
-            for y in range(height):
-                for x in range(width):
+            for y in range(0, height, 2):
+                for x in range(0, width, 2):
                     color = pixels[x, y]
                     hex_char = closest_color(color, color_to_hex)  # Find the closest color match
                     hex_data += hex_char
@@ -121,13 +121,16 @@ def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex
 
 
 if __name__ == '__main__':
-    extract_frames("output.AVI")
+    image_folder = 'decodertemp'  # Folder containing images
+    video = "output.AVI"
+    output = "output_ascii.txt"
+    extract_frames(video, image_folder)
 
-    image_folder = 'temp'  # Folder containing images
     # output_file_path = 'decoded_hex_data.txt'  # File to write the decoded hex data
-    decode_hex_images_to_ascii_file(image_folder, 'output_ascii.txt', color_to_hex)
+    decode_hex_images_to_ascii_file(image_folder, output, color_to_hex)
 
-    shutil.rmtree(image_folder)
+    # shutil.rmtree(image_folder)
+
     # print("Hex data has been written to:", output_file_path)
 
     # f = open("output.AVI", "rb")
