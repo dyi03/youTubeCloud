@@ -36,7 +36,7 @@ def hexdump(file_content):
     return hex_bytes
 
 
-def extract_frames(video_path, output_folder="temp"):
+def extract_frames(video_path, output_folder="decode_temp"):
     # Create the output folder if it doesn't exist
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)  # Remove the folder and all its contents
@@ -121,13 +121,13 @@ def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex
 
 
 if __name__ == '__main__':
-    extract_frames("output.AVI")
+    extract_frames("/Users/sgkauai/Documents/Senior Project/youTubeCloud/output.AVI")
 
-    image_folder = 'temp'  # Folder containing images
+    image_folder = '/Users/sgkauai/Documents/Senior Project/youTubeCloud/decode_temp'  # Folder containing images
     # output_file_path = 'decoded_hex_data.txt'  # File to write the decoded hex data
     decode_hex_images_to_ascii_file(image_folder, 'output_ascii.txt', color_to_hex)
 
-    shutil.rmtree(image_folder)
+    # shutil.rmtree(image_folder)
     # print("Hex data has been written to:", output_file_path)
 
     # f = open("output.AVI", "rb")
