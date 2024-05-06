@@ -36,6 +36,7 @@ def hexdump(file_content):
     return hex_bytes
 
 
+
 def extract_frames(video_path, output_folder):
     # Create the output folder if it doesn't exist
     if os.path.exists(output_folder):
@@ -119,7 +120,6 @@ if __name__ == '__main__':
     video = "output.AVI"
     output = "output_ascii.txt"
     extract_frames(video, image_folder)
-
     # output_file_path = 'decoded_hex_data.txt'  # File to write the decoded hex data
     decode_hex_images_to_ascii_file(image_folder, output, color_to_hex)
 
