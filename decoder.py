@@ -106,6 +106,7 @@ def extract_hex_from_images(image_folder):
             while y < height:
                 x = 0
                 while x < width:
+
                     # Collect colors from a 2x2 pixel grid
                     colors = []
                     for dy in range(2):
@@ -152,3 +153,4 @@ if __name__ == '__main__':
     hex_to_ascii(hex_data, output)
 
     # shutil.rmtree(image_folder)
+

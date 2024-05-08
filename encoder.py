@@ -222,14 +222,10 @@ if __name__ == '__main__':
     input_text = f.read()
 
     hex_input = hexdump(input_text)
-    # print(hex_input)
-
-    # padded = null_byte_padding(hex_input)
-    # print(len(padded))
 
     generate_hex_images(tempDir, hex_input)
 
     images_to_video(tempDir, output)
 
-    # shutil.rmtree('encoder_temp')
+    shutil.rmtree('encoder_temp')
 
