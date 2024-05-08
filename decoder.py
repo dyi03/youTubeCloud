@@ -36,7 +36,8 @@ def hexdump(file_content):
     return hex_bytes
 
 
-def extract_frames(video_path, output_folder="decode_temp"):
+
+def extract_frames(video_path, output_folder):
     # Create the output folder if it doesn't exist
     if os.path.exists(output_folder):
         shutil.rmtree(output_folder)  # Remove the folder and all its contents
@@ -50,7 +51,7 @@ def extract_frames(video_path, output_folder="decode_temp"):
         # Convert the frame to PIL image
         img = frame.to_image()
         # Save the image file
-        img.save(os.path.join(output_folder, f'frame-{i}.png'))
+        img.save(os.path.join(output_folder, f'{i}.png'))
         print(f"Extracted frame {i}")
 
     print("All frames extracted.")
@@ -68,26 +69,26 @@ def closest_color(target_color, color_map):
     return closest_hex
 
 
-def decode_hex_images(image_folder):
-    hex_data = ""
-
-    # Loop through each image file
-    for filename in sorted(os.listdir(image_folder)):  # Ensure files are processed in order
-        if filename.endswith('.png'):
-            img_path = os.path.join(image_folder, filename)
-            img = Image.open(img_path)
-            pixels = img.load()
-
-            width, height = img.size
-
-            # Read each pixel and convert it back to hex character
-            for y in range(height):
-                for x in range(width):
-                    color = pixels[x, y]
-                    hex_char = closest_color(color, color_to_hex)  # Find the closest color match
-                    hex_data += hex_char
-
-    return hex_data
+# def decode_hex_images(image_folder):
+#     hex_data = ""
+#
+#     # Loop through each image file
+#     for filename in sorted(os.listdir(image_folder)):  # Ensure files are processed in order
+#         if filename.endswith('.png'):
+#             img_path = os.path.join(image_folder, filename)
+#             img = Image.open(img_path)
+#             pixels = img.load()
+#
+#             width, height = img.size
+#
+#             # Read each pixel and convert it back to hex character
+#             for y in range(0, height, 2):
+#                 for x in range(0, width, 2):
+#                     color = pixels[x, y]
+#                     hex_char = closest_color(color, color_to_hex)  # Find the closest color match
+#                     hex_data += hex_char
+#
+#     return hex_data
 
 
 def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex):
@@ -100,34 +101,30 @@ def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex
                 pixels = img.load()
                 width, height = img.size
 
-                # Read each pixel, find its closest hex representation
-                byte_builder = ""
-                for y in range(height):
-                    for x in range(width):
-                        color = pixels[x, y]
-                        hex_char = closest_color(color, color_to_hex)
-                        byte_builder += hex_char  # Build the byte from two hex characters
-                        if len(byte_builder) == 2:  # Check if we have a complete byte
-                            if byte_builder == '00':  # Stop if the whole null byte is encountered
-                                print("Whole null byte encountered, stopping decoding.")
-                                return  # Return to stop processing further
-                            # Convert hex byte to ASCII character
-                            try:
-                                ascii_char = bytes.fromhex(byte_builder).decode('utf-8', 'ignore')
-                                file.write(ascii_char)  # Write the ASCII character to file
-                            except ValueError as e:
-                                print("Failed to convert hex to ASCII:", e)
-                            byte_builder = ""  # Reset byte builder for next byte
+                # Read each 2x2 grid of pixels and convert it to ASCII character
+                for y in range(0, height, 2):
+                    for x in range(0, width, 2):
+                        colors = [pixels[i, j] for i in range(x, x + 2) for j in range(y, y + 2)]
+                        average_color = tuple(int(sum(c[i] for c in colors) / 4) for i in range(3))  # Average color
+                        hex_char = closest_color(average_color, color_to_hex)  # Find the closest color match
+                        try:
+                            ascii_char = bytes.fromhex(hex_char).decode('utf-8', 'ignore')
+                            file.write(ascii_char)  # Write the ASCII character to file
+                        except ValueError as e:
+                            print("Failed to convert hex to ASCII:", e)
+
 
 
 if __name__ == '__main__':
-    extract_frames("/Users/sgkauai/Documents/Senior Project/youTubeCloud/output.AVI")
-
-    image_folder = '/Users/sgkauai/Documents/Senior Project/youTubeCloud/decode_temp'  # Folder containing images
+    image_folder = 'decodertemp'  # Folder containing images
+    video = "output.AVI"
+    output = "output_ascii.txt"
+    extract_frames(video, image_folder)
     # output_file_path = 'decoded_hex_data.txt'  # File to write the decoded hex data
-    decode_hex_images_to_ascii_file(image_folder, 'output_ascii.txt', color_to_hex)
+    decode_hex_images_to_ascii_file(image_folder, output, color_to_hex)
 
     # shutil.rmtree(image_folder)
+
     # print("Hex data has been written to:", output_file_path)
 
     # f = open("output.AVI", "rb")
