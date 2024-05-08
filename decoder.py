@@ -91,6 +91,56 @@ def closest_color(target_color, color_map):
 #     return hex_data
 
 
+# def extract_hex_from_images(image_folder):
+#     hex_data = ""
+#     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
+
+#     for file in files:
+#         if file.endswith('.png'):
+#             img_path = os.path.join(image_folder, file)
+#             img = Image.open(img_path)
+#             pixels = img.load()
+#             width, height = img.size
+
+#             y = 0
+#             while y < height:
+#                 x = 0
+#                 while x < width:
+#                     # Assuming the color of the pixel can be converted back to a hex character
+#                     color = pixels[x, y]  # Get the pixel color at the top-left of each 2x2 grid
+#                     hex_char = closest_color(color, color_to_hex)
+#                     # hex_char = color_to_hex.get(color, 'F')  # Convert color back to hex, default to 'F'
+#                     hex_data += hex_char
+#                     x += 2
+#                 y += 2
+
+#     return hex_data
+
+# def extract_hex_from_images(image_folder):
+#     hex_data = ""
+#     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
+
+#     for file in files:
+#         if file.endswith('.png'):
+#             img_path = os.path.join(image_folder, file)
+#             img = Image.open(img_path)
+#             pixels = img.load()
+#             width, height = img.size
+
+#             y = 0
+#             while y < height:
+#                 x = 0
+#                 while x < width:
+#                     # Assuming the color of the pixel can be converted back to a hex character
+#                     color = pixels[x, y]  # Get the pixel color at the top-left of each 2x2 grid
+#                     hex_char = closest_color(color, color_to_hex)
+#                     # hex_char = color_to_hex.get(color, 'F')  # Convert color back to hex, default to 'F'
+#                     hex_data += hex_char
+#                     x += 2
+#                 y += 2
+
+#     return hex_data
+
 def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex):
     with open(output_file_path, 'w') as file:  # Open the file in write mode from the start
         # Process each image file in order
@@ -101,18 +151,43 @@ def decode_hex_images_to_ascii_file(image_folder, output_file_path, color_to_hex
                 pixels = img.load()
                 width, height = img.size
 
-                # Read each 2x2 grid of pixels and convert it to ASCII character
-                for y in range(0, height, 2):
-                    for x in range(0, width, 2):
-                        colors = [pixels[i, j] for i in range(x, x + 2) for j in range(y, y + 2)]
-                        average_color = tuple(int(sum(c[i] for c in colors) / 4) for i in range(3))  # Average color
-                        hex_char = closest_color(average_color, color_to_hex)  # Find the closest color match
-                        try:
-                            ascii_char = bytes.fromhex(hex_char).decode('utf-8', 'ignore')
-                            file.write(ascii_char)  # Write the ASCII character to file
-                        except ValueError as e:
-                            print("Failed to convert hex to ASCII:", e)
+            y = 0
+            while y < height:
+                x = 0
+                while x < width:
+                    # Collect colors from a 2x2 pixel grid
+                    colors = []
+                    for dy in range(2):
+                        for dx in range(2):
+                            if x + dx < width and y + dy < height:  # Ensure we don't go out of bounds
+                                colors.append(pixels[x + dx, y + dy])
 
+                    # Average the RGB values
+                    if colors:
+                        average_color = tuple(sum(c) // len(c) for c in zip(*colors))
+                        hex_char = closest_color(average_color, color_to_hex)
+                        hex_data += hex_char
+
+                    x += 2
+                y += 2
+
+    return hex_data
+
+def hex_to_ascii(hex_string, output):
+    ascii_string = ""
+
+    for i in range(0, len(hex_string), 2):  # Process two characters at a time
+        hex_value = hex_string[i:i+2]  # Get two characters from the hex string
+        # if not hex_value:  # Check if hex_value is empty, stop if it is
+        #     break
+        char_code = int(hex_value, 16)  # Convert from hex to an integer
+        # if char_code < 32 or char_code > 126:  # ASCII printable characters range from 32 to 126
+            # break  # Stop converting if a non-printable character is encountered
+        ascii_char = chr(char_code)  # Convert integer to the ASCII char
+        ascii_string += ascii_char
+
+    with open(output, 'w') as file:
+        file.write(ascii_string)
 
 
 if __name__ == '__main__':
@@ -139,3 +214,4 @@ if __name__ == '__main__':
     # generate_hex_images(hex_input)
 
     # images_to_video("output", "output.AVI")
+    # shutil.rmtree(image_folder)
