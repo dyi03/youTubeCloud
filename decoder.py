@@ -91,9 +91,9 @@ def closest_color(target_color, color_map):
 #     return hex_data
 
 
-# def extract_hex_from_images(image_folder):
-#     hex_data = ""
-#     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
+def extract_hex_from_images(image_folder):
+    hex_data = ""
+    files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
 
     for file in files:
         if file.endswith('.png'):
@@ -119,19 +119,6 @@ def closest_color(target_color, color_map):
                         hex_char = closest_color(average_color, color_to_hex)
                         hex_data += hex_char
 
-                    # Collect colors from a 2x2 pixel grid
-                    colors = []
-                    for dy in range(2):
-                        for dx in range(2):
-                            if x + dx < width and y + dy < height:  # Ensure we don't go out of bounds
-                                colors.append(pixels[x + dx, y + dy])
-
-                    # Average the RGB values
-                    if colors:
-                        average_color = tuple(sum(c) // len(c) for c in zip(*colors))
-                        hex_char = closest_color(average_color, color_to_hex)
-                        hex_data += hex_char
-
                     x += 2
                 y += 2
 
@@ -139,7 +126,6 @@ def closest_color(target_color, color_map):
 
 def hex_to_ascii(hex_string, output):
     ascii_string = ""
-
 
     for i in range(0, len(hex_string), 2):  # Process two characters at a time
         hex_value = hex_string[i:i+2]  # Get two characters from the hex string

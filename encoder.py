@@ -213,7 +213,7 @@ def images_to_video(image_folder, output_file, frame_rate=60):
 if __name__ == '__main__':
     tempDir = "encoderTemp"
 
-    input = "books/test"
+    input = "books/bible.txt"
 
     output = "output.AVI"
 
