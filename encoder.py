@@ -4,6 +4,7 @@ import av
 import glob
 import os
 import shutil
+import re
 
 hex_to_color = {
     '0': (255, 255, 255),  # white
@@ -23,6 +24,16 @@ hex_to_color = {
     'E': (128, 0, 255),  # purple
     'F': (255, 128, 128),  # coral
 }
+
+def numerical_sort(value):
+    """
+    This helper function takes a string and returns a list of parts,
+    with all digit parts turned into integers. This list can be used
+    as a key for sorting.
+    """
+    parts = re.split(r'(\d+)', value)
+    parts[1::2] = map(int, parts[1::2])  # Convert all digit strings to integers
+    return parts
 
 
 def hexdump(file_content):
@@ -49,13 +60,56 @@ def text_to_binary(text):
     return ''.join(format(ord(c), '08b') for c in text)
 
 
+# def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
+#     if os.path.exists(tempDir):
+#         shutil.rmtree(tempDir)  # Remove the folder and all its contents
+#     os.makedirs(tempDir)
+
+#     # Calculate the number of hex characters per image
+#     chars_per_image = width * height
+
+#     # Split the hex data into chunks that fit into individual images
+#     chunks = [hex_data[i:i + chars_per_image] for i in range(0, len(hex_data), chars_per_image)]
+
+#     images = []  # This will store all the image objects
+
+#     for index, chunk in enumerate(chunks):
+#         img = Image.new('RGB', (width, height), "white")  # 'RGB' mode for color
+#         pixels = img.load()
+
+#         hex_string = chunk.decode('ascii')
+
+#         x, y = 0, 0
+#         for hex_char in hex_string:
+
+#             # Map the hex character to its color and set the pixel for a 2x2 grid
+#             color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to black if not found
+
+#             # Set the color for the 2x2 pixel grid
+#             for dx in range(2):
+#                 for dy in range(2):
+#                     pixels[x + dx, y + dy] = color
+#             print(x, y)
+#             # Move to the next position for the next character
+#             x += 2
+#             if x >= width:
+#                 x = 0
+#                 y += 2
+
+#         # Save the image locally
+#         filename = f'{tempDir}/hex_image_{index}.png'
+#         img.save(filename)
+#         images.append(img)
+
+#     return images
+
 def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
     if os.path.exists(tempDir):
         shutil.rmtree(tempDir)  # Remove the folder and all its contents
     os.makedirs(tempDir)
 
     # Calculate the number of hex characters per image
-    chars_per_image = width * height
+    chars_per_image = (width * height) // 4  # Each character is represented by a 2x2 pixel grid
 
     # Split the hex data into chunks that fit into individual images
     chunks = [hex_data[i:i + chars_per_image] for i in range(0, len(hex_data), chars_per_image)]
@@ -68,32 +122,24 @@ def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
 
         hex_string = chunk.decode('ascii')
 
-        # x, y = 0, 0
-        # for hex_char in hex_string:
-        #     # Map the hex character to its color and set the pixel
-        #     color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to black if not found
-        #     pixels[x, y] = color
-        #     x += 1
-        #     if x >= width:
-        #         x = 0
-        #         y += 1
-
         x, y = 0, 0
         for hex_char in hex_string:
-
             # Map the hex character to its color and set the pixel for a 2x2 grid
-            color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to black if not found
+            color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to white if not found
 
             # Set the color for the 2x2 pixel grid
             for dx in range(2):
                 for dy in range(2):
-                    pixels[x + dx, y + dy] = color
+                    if x + dx < width and y + dy < height:
+                        pixels[x + dx, y + dy] = color
 
             # Move to the next position for the next character
             x += 2
             if x >= width:
                 x = 0
                 y += 2
+                if y >= height:
+                    break  # Stop if y exceeds the height, to avoid IndexError
 
         # Save the image locally
         filename = f'{tempDir}/hex_image_{index}.png'
@@ -113,7 +159,9 @@ def images_to_video(image_folder, output_file, frame_rate=60):
     frame_rate (int, optional): The frame rate of the output video. Default is 24.
     """
     # Sort files by name
-    images = sorted(glob.glob(f"{image_folder}/*.png"))
+    # images = sorted(glob.glob(f"{image_folder}/*.png"))
+    images = sorted(glob.glob(f"{image_folder}/*.png"), key=numerical_sort)
+    print(images)
 
     if not images:
         raise ValueError("No images found in the specified directory")
@@ -128,15 +176,27 @@ def images_to_video(image_folder, output_file, frame_rate=60):
     stream = container.add_stream('ffv1', rate=1)
     stream.width = frame.width
     stream.height = frame.height
-    # stream. = frame_rate
+    # stream.pix_fmt = 'yuv420p'
+    # stream.time_base = av.Rational(1, frame_rate)
 
-    # for img_path in images:
-    #     img = av.open(img_path)
-    #     # container.mux(img)
-    #     for frame in img.decode():
-    #         frame.pts = None  # Use automatic PTS
-    #         container.mux(frame)
-    #     img.close()
+
+    # # Calculate the correct PTS for each frame
+    # for i, img_path in enumerate(images):
+    #     img = Image.open(img_path)
+    #     frame = av.VideoFrame.from_image(img)
+    #     frame.pts = i * (stream.time_base / frame_rate).denominator  # Ensure PTS increases correctly
+    #     frame.time_base = stream.time_base
+
+    #     # Encode the frame
+    #     for packet in stream.encode(frame):
+    #         container.mux(packet)
+
+    # # Flush the encoder
+    # for packet in stream.encode():
+    #     container.mux(packet)
+
+    # # Close the container
+    # container.close()
 
     for img_path in images:
         img = av.open(img_path)
@@ -146,11 +206,6 @@ def images_to_video(image_folder, output_file, frame_rate=60):
             # Encode the frame to a packet
             for packet in stream.encode(frame):
                 container.mux(packet)  # Mux the packet into the container
-
-    # # After all images have been processed
-    # for packet in stream.encode():
-    #     print("here")
-    #     container.mux(packet)
 
     container.close()
 

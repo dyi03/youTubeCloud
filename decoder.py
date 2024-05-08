@@ -106,26 +106,35 @@ def extract_hex_from_images(image_folder):
             while y < height:
                 x = 0
                 while x < width:
-                    # Assuming the color of the pixel can be converted back to a hex character
-                    color = pixels[x, y]  # Get the pixel color at the top-left of each 2x2 grid
-                    hex_char = closest_color(color, color_to_hex)
-                    # hex_char = color_to_hex.get(color, 'F')  # Convert color back to hex, default to 'F'
-                    hex_data += hex_char
+
+                    # Collect colors from a 2x2 pixel grid
+                    colors = []
+                    for dy in range(2):
+                        for dx in range(2):
+                            if x + dx < width and y + dy < height:  # Ensure we don't go out of bounds
+                                colors.append(pixels[x + dx, y + dy])
+
+                    # Average the RGB values
+                    if colors:
+                        average_color = tuple(sum(c) // len(c) for c in zip(*colors))
+                        hex_char = closest_color(average_color, color_to_hex)
+                        hex_data += hex_char
+
                     x += 2
                 y += 2
 
     return hex_data
 
-
 def hex_to_ascii(hex_string, output):
     ascii_string = ""
+
     for i in range(0, len(hex_string), 2):  # Process two characters at a time
         hex_value = hex_string[i:i+2]  # Get two characters from the hex string
-        if not hex_value:  # Check if hex_value is empty, stop if it is
-            break
+        # if not hex_value:  # Check if hex_value is empty, stop if it is
+        #     break
         char_code = int(hex_value, 16)  # Convert from hex to an integer
-        if char_code < 32 or char_code > 126:  # ASCII printable characters range from 32 to 126
-            break  # Stop converting if a non-printable character is encountered
+        # # if char_code < 32 or char_code > 126:  # ASCII printable characters range from 32 to 126
+            # # break  # Stop converting if a non-printable character is encountered
         ascii_char = chr(char_code)  # Convert integer to the ASCII char
         ascii_string += ascii_char
 
@@ -143,4 +152,5 @@ if __name__ == '__main__':
 
     hex_to_ascii(hex_data, output)
 
-    shutil.rmtree(image_folder)
+    # shutil.rmtree(image_folder)
+
