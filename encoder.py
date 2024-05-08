@@ -49,7 +49,7 @@ def text_to_binary(text):
     return ''.join(format(ord(c), '08b') for c in text)
 
 
-def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
+def generate_hex_images(tempDir, hex_data, width=1920, height=1080, grid=2):
     if os.path.exists(tempDir):
         shutil.rmtree(tempDir)  # Remove the folder and all its contents
     os.makedirs(tempDir)
@@ -68,16 +68,6 @@ def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
 
         hex_string = chunk.decode('ascii')
 
-        # x, y = 0, 0
-        # for hex_char in hex_string:
-        #     # Map the hex character to its color and set the pixel
-        #     color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to black if not found
-        #     pixels[x, y] = color
-        #     x += 1
-        #     if x >= width:
-        #         x = 0
-        #         y += 1
-
         x, y = 0, 0
         for hex_char in hex_string:
 
@@ -85,12 +75,12 @@ def generate_hex_images(tempDir, hex_data, width=1920, height=1080):
             color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to black if not found
 
             # Set the color for the 2x2 pixel grid
-            for dx in range(2):
-                for dy in range(2):
+            for dx in range(grid):
+                for dy in range(grid):
                     pixels[x + dx, y + dy] = color
 
             # Move to the next position for the next character
-            x += 2
+            x += grid
             if x >= width:
                 x = 0
                 y += 2
@@ -125,18 +115,9 @@ def images_to_video(image_folder, output_file, frame_rate=60):
 
     # Create an output container and add a video stream
     container = av.open(output_file, "w")
-    stream = container.add_stream('ffv1', rate=1)
+    stream = container.add_stream('ffv1', rate=frame_rate)
     stream.width = frame.width
     stream.height = frame.height
-    # stream. = frame_rate
-
-    # for img_path in images:
-    #     img = av.open(img_path)
-    #     # container.mux(img)
-    #     for frame in img.decode():
-    #         frame.pts = None  # Use automatic PTS
-    #         container.mux(frame)
-    #     img.close()
 
     for img_path in images:
         img = av.open(img_path)
@@ -146,11 +127,6 @@ def images_to_video(image_folder, output_file, frame_rate=60):
             # Encode the frame to a packet
             for packet in stream.encode(frame):
                 container.mux(packet)  # Mux the packet into the container
-
-    # # After all images have been processed
-    # for packet in stream.encode():
-    #     print("here")
-    #     container.mux(packet)
 
     container.close()
 

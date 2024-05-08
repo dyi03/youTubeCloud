@@ -68,29 +68,6 @@ def closest_color(target_color, color_map):
             closest_hex = hex_char
     return closest_hex
 
-
-# def decode_hex_images(image_folder):
-#     hex_data = ""
-#
-#     # Loop through each image file
-#     for filename in sorted(os.listdir(image_folder)):  # Ensure files are processed in order
-#         if filename.endswith('.png'):
-#             img_path = os.path.join(image_folder, filename)
-#             img = Image.open(img_path)
-#             pixels = img.load()
-#
-#             width, height = img.size
-#
-#             # Read each pixel and convert it back to hex character
-#             for y in range(0, height, 2):
-#                 for x in range(0, width, 2):
-#                     color = pixels[x, y]
-#                     hex_char = closest_color(color, color_to_hex)  # Find the closest color match
-#                     hex_data += hex_char
-#
-#     return hex_data
-
-
 def extract_hex_from_images(image_folder):
     hex_data = ""
     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
