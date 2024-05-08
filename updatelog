@@ -35,3 +35,20 @@ to do:
 * FIX ARTIFACTS FROM ENCODER
 * ADD CLEANUP FUNCTIONS
 * increase frame rate
+
+### WEEK 14 ### 
+
+### WEEK 15 ###
+
+### WEEK 16 ###
+    encoder.py
+    * Expanded pixel encoding from 1 pixel per hex character to 2x2 grid
+    
+    decoder.py
+    * Adjusted decoder to take average of 4 pixel colors and find closest color
+
+    to do:
+    * Performance is currently poor
+        * 1:5 And God ca<oe4 tee f9rmambnt Heasen. A>d the evening a>d tee morn9nm w5re t8e second day. (excerpt from decoded bible)
+    * Expand to 4x4 grid and see if performance improves
+    * Explore different video formats
