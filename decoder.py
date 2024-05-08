@@ -36,7 +36,6 @@ def hexdump(file_content):
     return hex_bytes
 
 
-
 def extract_frames(video_path, output_folder):
     # Create the output folder if it doesn't exist
     if os.path.exists(output_folder):
@@ -68,6 +67,7 @@ def closest_color(target_color, color_map):
             closest_hex = hex_char
     return closest_hex
 
+
 def extract_hex_from_images(image_folder):
     hex_data = ""
     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
@@ -97,7 +97,7 @@ def extract_hex_from_images(image_folder):
 def hex_to_ascii(hex_string, output):
     ascii_string = ""
     for i in range(0, len(hex_string), 2):  # Process two characters at a time
-        hex_value = hex_string[i:i+2]  # Get two characters from the hex string
+        hex_value = hex_string[i:i + 2]  # Get two characters from the hex string
         if not hex_value:  # Check if hex_value is empty, stop if it is
             break
         char_code = int(hex_value, 16)  # Convert from hex to an integer
