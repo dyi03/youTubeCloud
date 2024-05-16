@@ -179,30 +179,11 @@ def images_to_video(image_folder, output_file, frame_rate=60):
     # stream.pix_fmt = 'yuv420p'
     # stream.time_base = av.Rational(1, frame_rate)
 
-
-    # # Calculate the correct PTS for each frame
-    # for i, img_path in enumerate(images):
-    #     img = Image.open(img_path)
-    #     frame = av.VideoFrame.from_image(img)
-    #     frame.pts = i * (stream.time_base / frame_rate).denominator  # Ensure PTS increases correctly
-    #     frame.time_base = stream.time_base
-
-    #     # Encode the frame
-    #     for packet in stream.encode(frame):
-    #         container.mux(packet)
-
-    # # Flush the encoder
-    # for packet in stream.encode():
-    #     container.mux(packet)
-
-    # # Close the container
-    # container.close()
-
     for img_path in images:
+        print(img_path)
         img = av.open(img_path)
         for frame in img.decode(video=0):
-            frame.pts = None  # Resetting PTS might not be necessary if you calculate it correctly.
-
+            frame.pts = None # Resetting PTS might not be necessary if you calculate it correctly.
             # Encode the frame to a packet
             for packet in stream.encode(frame):
                 container.mux(packet)  # Mux the packet into the container
@@ -227,5 +208,5 @@ if __name__ == '__main__':
 
     images_to_video(tempDir, output)
 
-    shutil.rmtree('encoder_temp')
+    # shutil.rmtree('encoder_temp')
 
