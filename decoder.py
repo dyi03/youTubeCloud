@@ -36,25 +36,31 @@ def hexdump(file_content):
     return hex_bytes
 
 
-
-def extract_frames(video_path, output_folder):
-    # Create the output folder if it doesn't exist
-    if os.path.exists(output_folder):
-        shutil.rmtree(output_folder)  # Remove the folder and all its contents
-    os.makedirs(output_folder)
-
+def extract_frames(video_path, image_folder):
+    """
+    Extracts frames from a video file and saves them as images.
+    """
     # Open the video file
     container = av.open(video_path)
 
-    # Iterate through frames in the video
-    for i, frame in enumerate(container.decode()):
-        # Convert the frame to PIL image
-        img = frame.to_image()
-        # Save the image file
-        img.save(os.path.join(output_folder, f'{i}.png'))
-        print(f"Extracted frame {i}")
+    if os.path.exists(image_folder):
+        shutil.rmtree(image_folder)  # Remove the folder and all its contents
+    os.makedirs(image_folder)
 
-    print("All frames extracted.")
+    # Loop through the frames in the video
+    for frame in container.decode(video=0):
+        # Check if the frame is a video frame
+        if isinstance(frame, av.VideoFrame):
+            # Convert frame to an image
+            img = frame.to_image()
+
+            # Create an image file name
+            img_filename = os.path.join(image_folder, f"{frame.index:04d}.png")
+
+            # Save the image
+            img.save(img_filename)
+
+    print("Frame extraction complete!")
 
 
 def closest_color(target_color, color_map):
@@ -69,29 +75,7 @@ def closest_color(target_color, color_map):
     return closest_hex
 
 
-# def decode_hex_images(image_folder):
-#     hex_data = ""
-#
-#     # Loop through each image file
-#     for filename in sorted(os.listdir(image_folder)):  # Ensure files are processed in order
-#         if filename.endswith('.png'):
-#             img_path = os.path.join(image_folder, filename)
-#             img = Image.open(img_path)
-#             pixels = img.load()
-#
-#             width, height = img.size
-#
-#             # Read each pixel and convert it back to hex character
-#             for y in range(0, height, 2):
-#                 for x in range(0, width, 2):
-#                     color = pixels[x, y]
-#                     hex_char = closest_color(color, color_to_hex)  # Find the closest color match
-#                     hex_data += hex_char
-#
-#     return hex_data
-
-
-def extract_hex_from_images(image_folder):
+def extract_hex_from_images(image_folder, gridsize):
     hex_data = ""
     files = sorted(os.listdir(image_folder))  # Ensure files are processed in order
 
@@ -109,8 +93,8 @@ def extract_hex_from_images(image_folder):
 
                     # Collect colors from a 2x2 pixel grid
                     colors = []
-                    for dy in range(2):
-                        for dx in range(2):
+                    for dy in range(gridsize):
+                        for dx in range(gridsize):
                             if x + dx < width and y + dy < height:  # Ensure we don't go out of bounds
                                 colors.append(pixels[x + dx, y + dy])
 
@@ -120,37 +104,24 @@ def extract_hex_from_images(image_folder):
                         hex_char = closest_color(average_color, color_to_hex)
                         hex_data += hex_char
 
-                    x += 2
-                y += 2
+                    x += gridsize
+                y += gridsize
 
     return hex_data
+
 
 def hex_to_ascii(hex_string, output):
     ascii_string = ""
 
     for i in range(0, len(hex_string), 2):  # Process two characters at a time
-        hex_value = hex_string[i:i+2]  # Get two characters from the hex string
+        hex_value = hex_string[i:i + 2]  # Get two characters from the hex string
         # if not hex_value:  # Check if hex_value is empty, stop if it is
         #     break
         char_code = int(hex_value, 16)  # Convert from hex to an integer
         # # if char_code < 32 or char_code > 126:  # ASCII printable characters range from 32 to 126
-            # # break  # Stop converting if a non-printable character is encountered
+        # # break  # Stop converting if a non-printable character is encountered
         ascii_char = chr(char_code)  # Convert integer to the ASCII char
         ascii_string += ascii_char
 
     with open(output, 'w') as file:
         file.write(ascii_string)
-
-
-if __name__ == '__main__':
-    image_folder = 'decodertemp'  # Folder containing images
-    video = "output.AVI"
-    output = "output_ascii.txt"
-    extract_frames(video, image_folder)
-
-    hex_data = extract_hex_from_images(image_folder)
-
-    hex_to_ascii(hex_data, output)
-
-    # shutil.rmtree(image_folder)
-

@@ -42,7 +42,7 @@ to do:
 
 ### WEEK 16 ###
     encoder.py
-    * Expanded pixel encoding from 1 pixel per hex character to 2x2 grid
+    * Expanded pixel encoding from 1 pixel per hex character to 2x2 grid, to 4x4 grid
     
     decoder.py
     * Adjusted decoder to take average of 4 pixel colors and find closest color
