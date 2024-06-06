@@ -91,7 +91,7 @@ def extract_hex_from_images(image_folder, gridsize):
                 x = 0
                 while x < width:
 
-                    # Collect colors from a 2x2 pixel grid
+                    # Collect colors from a pixel grid
                     colors = []
                     for dy in range(gridsize):
                         for dx in range(gridsize):
@@ -115,13 +115,28 @@ def hex_to_ascii(hex_string, output):
 
     for i in range(0, len(hex_string), 2):  # Process two characters at a time
         hex_value = hex_string[i:i + 2]  # Get two characters from the hex string
-        # if not hex_value:  # Check if hex_value is empty, stop if it is
-        #     break
         char_code = int(hex_value, 16)  # Convert from hex to an integer
-        # # if char_code < 32 or char_code > 126:  # ASCII printable characters range from 32 to 126
-        # # break  # Stop converting if a non-printable character is encountered
         ascii_char = chr(char_code)  # Convert integer to the ASCII char
         ascii_string += ascii_char
 
     with open(output, 'w') as file:
         file.write(ascii_string)
+
+
+def find_and_remove_duplicate_frames(image_folder):
+    files = sorted(glob.glob(f"{image_folder}/*.png"))
+    unique_files = []
+    hashes = set()
+
+    for file in files:
+        with open(file, 'rb') as img_file:
+            img_data = img_file.read()
+            img_hash = binascii.crc32(img_data)
+
+        if img_hash not in hashes:
+            hashes.add(img_hash)
+            unique_files.append(file)
+        else:
+            os.remove(file)
+
+    print(f"Removed duplicates, {len(unique_files)} unique frames remaining.")

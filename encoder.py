@@ -86,7 +86,7 @@ def generate_hex_images(tempDir, hex_data, width, height, gridsize):
             # Map the hex character to its color and set the pixel for a 2x2 grid
             color = hex_to_color.get(hex_char.upper(), (255, 255, 255))  # Default to white if not found
 
-            # Set the color for the 2x2 pixel grid
+            # Set the color for the pixel grid
             for dx in range(gridsize):
                 for dy in range(gridsize):
                     if x + dx < width and y + dy < height:
@@ -108,7 +108,7 @@ def generate_hex_images(tempDir, hex_data, width, height, gridsize):
     return images
 
 
-def images_to_video(image_folder, output_file, frame_rate=30):
+def images_to_video(image_folder, output_file, frame_rate):
     """
     Create a video from a sequence of images.
 
